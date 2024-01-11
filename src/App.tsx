@@ -24,7 +24,7 @@ function App() {
 
   return (
     <>
-      <div className="bg-gray-200 h-[635px] flex items-center justify-center ">
+      <div className="bg-[url(bg.jfif)] bg-cover bg-bottom h-[635px] flex items-center justify-center ">
         <div className="text-center text-white">
           <div className="text-5xl font-bold pb-[18px]">
             Lorem ipsum dolor sit amet consectetur.

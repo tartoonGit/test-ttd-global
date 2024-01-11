@@ -24,7 +24,9 @@ import thai_provinces from "./../data/thai_provinces.json";
 import thai_tambons from "./../data/thai_tambons.json";
 import Icon from "@mdi/react";
 import { mdiEyeOutline, mdiDeleteOutline } from "@mdi/js";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useStore, memberType } from "./../store/register";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const countries = countries_json;
@@ -71,6 +73,62 @@ const Register = () => {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleDeleteClick = () => {
+    setAvatarSrc("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handlePhone = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setPhone(e.target.value);
+  };
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [conPassword, setConPassword] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [taxId, setTaxId] = useState("");
+  const [fName, setFName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [website, setWebsite] = useState("");
+  const [address, setAddress] = useState("");
+  const [errorMessage, setErrorMessage] = useState(false);
+  const increaseMember = useStore((state) => state.increase);
+  const navigate = useNavigate();
+  const submit = () => {
+    const data: memberType = {
+      img: avatarSrc,
+      email: email,
+      password: password,
+      conPassword: conPassword,
+      taxId: taxId,
+      fName: fName,
+      phone: phone,
+      website: website,
+      address: address,
+      subDistrict: subDistrict,
+      district: district,
+      province: province,
+      zipCode: zipCode,
+    };
+
+    const allFieldsFilled = Object.values(data).every((value) => value !== "");
+    if (allFieldsFilled) {
+      setErrorMessage(false);
+      if (increaseMember) {
+        increaseMember(data);
+        navigate("/");
+      } else {
+        console.error("increaseMember function is undefined");
+      }
+    } else {
+      setErrorMessage(true);
+    }
+  };
+
   return (
     <>
       <div className="border border-gray-100 rounded-2xl drop-shadow-lg max-w-7xl w-full flex flex-col items-center">
@@ -94,12 +152,12 @@ const Register = () => {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                   <img src={avatarSrc} />
+                    <img src={avatarSrc} />
                   </DialogHeader>
                 </DialogContent>
               </Dialog>
 
-              <div onClick={() => setAvatarSrc("")}>
+              <div onClick={handleDeleteClick}>
                 <Icon
                   path={mdiDeleteOutline}
                   size={1.5}
@@ -109,9 +167,10 @@ const Register = () => {
             </div>
           )}
           <AvatarFallback className="bg-inherit border border-[#021E42]">
-            <img src="/public/icons/upimage.svg"></img>
+            <img src="./../../public/upimage.svg"></img>
           </AvatarFallback>
           <Input
+            ref={fileInputRef}
             className="hidden"
             id="file"
             type="file"
@@ -128,13 +187,17 @@ const Register = () => {
             </Label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <img src="/public/icons/email.svg"></img>
+                <img src="./../../public/email.svg"></img>
               </div>
               <Input
                 className="pl-12 placeholder:text-lg placeholder:font-normal placeholder:text-[#cccccc]"
                 id="email"
                 placeholder="Enter your Email"
                 type="email"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                }}
               />
             </div>
           </div>
@@ -145,13 +208,17 @@ const Register = () => {
             </Label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <img src="/public/icons/password.svg"></img>
+                <img src="./../../public/password.svg"></img>
               </div>
               <Input
                 className="pl-12 placeholder:text-lg placeholder:font-normal placeholder:text-[#cccccc]"
                 id="password"
                 placeholder="Enter your password"
                 type="password"
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                }}
               />
             </div>
           </div>
@@ -162,13 +229,17 @@ const Register = () => {
             </Label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <img src="/public/icons/password.svg"></img>
+                <img src="./../../public/password.svg"></img>
               </div>
               <Input
                 className="pl-12 placeholder:text-lg placeholder:font-normal placeholder:text-[#cccccc]"
                 id="confirm_password"
                 placeholder="Enter your password"
                 type="password"
+                value={conPassword}
+                onChange={(event) => {
+                  setConPassword(event.target.value);
+                }}
               />
             </div>
           </div>
@@ -190,6 +261,10 @@ const Register = () => {
                 id="company_name"
                 placeholder="Enter company name"
                 type="text"
+                value={companyName}
+                onChange={(event) => {
+                  setCompanyName(event.target.value);
+                }}
               />
             </div>
             {/* input Tax ID */}
@@ -202,6 +277,10 @@ const Register = () => {
                 id="tax_id"
                 placeholder="Enter Tax ID"
                 type="text"
+                value={taxId}
+                onChange={(event) => {
+                  setTaxId(event.target.value);
+                }}
               />
             </div>
             {/* input Full Name */}
@@ -214,6 +293,10 @@ const Register = () => {
                 id="full_name"
                 placeholder="Enter Full name"
                 type="text"
+                value={fName}
+                onChange={(event) => {
+                  setFName(event.target.value);
+                }}
               />
             </div>
             {/* Select Country */}
@@ -257,6 +340,8 @@ const Register = () => {
                   id="phone_number"
                   placeholder="Enter Phone number"
                   type="tel"
+                  onChange={handlePhone}
+                  value={phone}
                 />
               </div>
             </div>
@@ -270,6 +355,10 @@ const Register = () => {
                 id="website"
                 placeholder="Enter website"
                 type="url"
+                value={website}
+                onChange={(event) => {
+                  setWebsite(event.target.value);
+                }}
               />
             </div>
             {/* Textarea Address */}
@@ -281,6 +370,10 @@ const Register = () => {
                 className="placeholder:text-lg placeholder:font-normal placeholder:text-[#cccccc] min-h-[136px] resize-none"
                 placeholder="Enter Address"
                 id="message"
+                value={address}
+                onChange={(event) => {
+                  setAddress(event.target.value);
+                }}
               />
             </div>
             {/* Select State/Province */}
@@ -366,13 +459,21 @@ const Register = () => {
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-between w-10/12 my-6">
+        <div className="flex justify-between items-center w-10/12 my-6">
           <Link to="/">
             <Button className="rounded-3xl text-xl w-[160px] h-12 bg-[#021E42]">
               Cancel
             </Button>
           </Link>
-          <Button className="rounded-3xl text-xl w-[160px] h-12 bg-[#5FC198]">
+          {errorMessage && (
+            <div className="text-red-500 text-lg">
+              Please fill out the information completely.
+            </div>
+          )}
+          <Button
+            className="rounded-3xl text-xl w-[160px] h-12 bg-[#5FC198]"
+            onClick={submit}
+          >
             Submit
           </Button>
         </div>
